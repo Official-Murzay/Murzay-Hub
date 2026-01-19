@@ -1,9 +1,9 @@
 -- Load Rayfield
 local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 
--- Create Window
+-- Create Window with custom theme
 local Window = Rayfield:CreateWindow({
-    Name = "MurzzHub | v0.1",
+    Name = "MurzzHub | v1.0",
     LoadingTitle = "Loading UI..",
     LoadingSubtitle = "By Murzay",
     ConfigurationSaving = {
@@ -12,11 +12,24 @@ local Window = Rayfield:CreateWindow({
         FileName = "Config"
     },
     Discord = { Enabled = false },
-    KeySystem = false
+    KeySystem = false,
+    Theme = {
+        -- Header / top bar
+        Accent = Color3.fromRGB(135, 206, 250),      -- Light Blue
+        -- Background / body
+        Background = Color3.fromRGB(25, 25, 112),    -- Darker Blue
+        -- Text
+        TextColor = Color3.fromRGB(255, 255, 255),   -- White
+        -- Sections / tabs
+        SectionColor = Color3.fromRGB(70, 130, 180), -- Medium Blue
+        -- Buttons / toggles
+        ButtonColor = Color3.fromRGB(100, 149, 237), -- Cornflower Blue
+        ToggleColor = Color3.fromRGB(135, 206, 250)  -- Light Blue
+    }
 })
 
 -- Home Tab
-local HomeTab = Window:CreateTab("Home", 4483362458) -- Icon ID placeholder
+local HomeTab = Window:CreateTab("Home", 4483362458) -- Icon placeholder
 
 -- Services
 local RunService = game:GetService("RunService")
@@ -80,7 +93,6 @@ HomeTab:CreateToggle({
     Callback = function(Value)
         _G.autoCollectAll = Value
 
-        -- Auto-collect loop
         task.spawn(function()
             while _G.autoCollectAll do
                 if hrp and hrp.Parent then
@@ -91,7 +103,7 @@ HomeTab:CreateToggle({
                         end
                     end
                 end
-                task.wait(0.1) -- Slight wait for performance
+                task.wait(0.1)
             end
         end)
     end
