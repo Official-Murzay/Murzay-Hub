@@ -3,7 +3,7 @@ local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 
 -- Create Window
 local Window = Rayfield:CreateWindow({
-    Name = "MurzzHub | v1.0",
+    Name = "MurzzHub | v0.1",
     LoadingTitle = "Loading UI..",
     LoadingSubtitle = "By Murzay",
     ConfigurationSaving = {
@@ -11,14 +11,66 @@ local Window = Rayfield:CreateWindow({
         FolderName = "MurzzHub",
         FileName = "Config"
     },
-    Discord = {
-        Enabled = false
-    },
+    Discord = { Enabled = false },
     KeySystem = false
 })
 
 -- Home Tab
 local HomeTab = Window:CreateTab("Home", 4483362458) -- Icon ID placeholder
+
+-- Services
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+-- Variables
+local hrp = player.Character:WaitForChild("HumanoidRootPart")
+local tycoonsFolder = workspace:WaitForChild("TycoonSets"):WaitForChild("Tycoons")
+local collectibles = {}
+
+-- Update HRP on respawn
+local function updateHRP()
+    local character = player.Character or player.CharacterAdded:Wait()
+    hrp = character:WaitForChild("HumanoidRootPart")
+end
+player.CharacterAdded:Connect(updateHRP)
+
+-- Scan Tycoon
+local function scanTycoon(tycoon)
+    local essentials = tycoon:FindFirstChild("Essentials")
+    if not essentials then return end
+
+    -- Giver
+    local giver = essentials:FindFirstChild("Giver")
+    if giver and not table.find(collectibles, giver) then
+        table.insert(collectibles, giver)
+    end
+
+    -- Droppers
+    local droppers = essentials:FindFirstChild("Droppers")
+    if droppers then
+        for _, dropper in ipairs(droppers:GetChildren()) do
+            if not table.find(collectibles, dropper) then
+                table.insert(collectibles, dropper)
+            end
+        end
+
+        -- Auto-add new droppers
+        droppers.ChildAdded:Connect(function(newDropper)
+            if not table.find(collectibles, newDropper) then
+                table.insert(collectibles, newDropper)
+            end
+        end)
+    end
+end
+
+-- Initial Scan
+for _, tycoon in ipairs(tycoonsFolder:GetChildren()) do
+    scanTycoon(tycoon)
+end
+
+-- Auto-scan new tycoons
+tycoonsFolder.ChildAdded:Connect(scanTycoon)
 
 -- Auto Collect All Toggle
 HomeTab:CreateToggle({
@@ -27,25 +79,25 @@ HomeTab:CreateToggle({
     Flag = "AutoCollectAll",
     Callback = function(Value)
         _G.autoCollectAll = Value
+
+        -- Auto-collect loop
         task.spawn(function()
             while _G.autoCollectAll do
-                -- Example: Collect Coins in workspace
-                for _, coinContainer in pairs(workspace:GetDescendants()) do
-                    if coinContainer.Name == "Coin_Server" then
-                        local character = game.Players.LocalPlayer.Character
-                        if character and character:FindFirstChild("HumanoidRootPart") then
-                            character.HumanoidRootPart.CFrame = coinContainer.CFrame
-                            task.wait(0.1)
+                if hrp and hrp.Parent then
+                    for _, obj in ipairs(collectibles) do
+                        if obj and obj.Parent then
+                            firetouchinterest(obj, hrp, 0)
+                            firetouchinterest(obj, hrp, 1)
                         end
                     end
                 end
-                task.wait(0.5)
+                task.wait(0.1) -- Slight wait for performance
             end
         end)
     end
 })
 
--- Keybind to Toggle UI (optional)
+-- Keybind to Toggle UI
 HomeTab:CreateKeybind({
     Name = "Toggle UI",
     CurrentKeybind = "F2",
