@@ -1,0 +1,57 @@
+-- Load Rayfield
+local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
+
+-- Create Window
+local Window = Rayfield:CreateWindow({
+    Name = "MurzzHub | v1.0",
+    LoadingTitle = "Loading UI..",
+    LoadingSubtitle = "By Murzay",
+    ConfigurationSaving = {
+        Enabled = true,
+        FolderName = "MurzzHub",
+        FileName = "Config"
+    },
+    Discord = {
+        Enabled = false
+    },
+    KeySystem = false
+})
+
+-- Home Tab
+local HomeTab = Window:CreateTab("Home", 4483362458) -- Icon ID placeholder
+
+-- Auto Collect All Toggle
+HomeTab:CreateToggle({
+    Name = "Auto Collect All",
+    CurrentValue = false,
+    Flag = "AutoCollectAll",
+    Callback = function(Value)
+        _G.autoCollectAll = Value
+        task.spawn(function()
+            while _G.autoCollectAll do
+                -- Example: Collect Coins in workspace
+                for _, coinContainer in pairs(workspace:GetDescendants()) do
+                    if coinContainer.Name == "Coin_Server" then
+                        local character = game.Players.LocalPlayer.Character
+                        if character and character:FindFirstChild("HumanoidRootPart") then
+                            character.HumanoidRootPart.CFrame = coinContainer.CFrame
+                            task.wait(0.1)
+                        end
+                    end
+                end
+                task.wait(0.5)
+            end
+        end)
+    end
+})
+
+-- Keybind to Toggle UI (optional)
+HomeTab:CreateKeybind({
+    Name = "Toggle UI",
+    CurrentKeybind = "F2",
+    HoldToInteract = false,
+    Flag = "UIToggle",
+    Callback = function()
+        Rayfield:Toggle()
+    end
+})
